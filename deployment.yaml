@@ -14,8 +14,8 @@ spec:
         app: week9-registration
     spec:
       containers:
-        - name: registration-app
-          image: harinisundari/week8:sampleimage
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 5001
+  - name: registration-app
+    image: harinisundari/week9-registration:v1
+    imagePullPolicy: Always
+    ports:
+      - containerPort: 5001
