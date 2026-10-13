@@ -6,7 +6,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Build Docker Image'
-                sh 'docker build -t week9-registration:v1 .'
+                sh '/usr/local/bin/docker build -t week9-registration:v1 .'
             }
         }
 
@@ -20,7 +20,7 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        echo "$DOCKER_PASS" | docker login \
+                        echo "$DOCKER_PASS" | /usr/local/bin/docker login \
                             -u "$DOCKER_USER" --password-stdin
                     '''
                 }
@@ -30,18 +30,21 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 sh '''
-                    docker tag week9-registration:v1 \
+                    /usr/local/bin/docker tag week9-registration:v1 \
                         harinisundari/week9-registration:v1
 
-                    docker push harinisundari/week9-registration:v1
+                    /usr/local/bin/docker push \
+                        harinisundari/week9-registration:v1
                 '''
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
+                sh '''
+                    /usr/local/bin/kubectl apply -f deployment.yaml
+                    /usr/local/bin/kubectl apply -f service.yaml
+                '''
             }
         }
     }
