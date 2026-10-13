@@ -2,11 +2,19 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "/usr/local/bin:/Applications/Docker.app/Contents/Resources/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+        DOCKER_IMAGE = "harinisundari/week9-registration:v1"
+    }
+
     stages {
         stage('Build Docker Image') {
             steps {
-                echo 'Build Docker Image'
-                sh '/usr/local/bin/docker build -t week9-registration:v1 .'
+                sh '''
+                    echo "Checking Docker..."
+                    /usr/local/bin/docker --version
+                    docker build -t week9-registration:v1 .
+                '''
             }
         }
 
@@ -20,7 +28,7 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        echo "$DOCKER_PASS" | /usr/local/bin/docker login \
+                        echo "$DOCKER_PASS" | docker login \
                             -u "$DOCKER_USER" --password-stdin
                     '''
                 }
@@ -30,11 +38,8 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 sh '''
-                    /usr/local/bin/docker tag week9-registration:v1 \
-                        harinisundari/week9-registration:v1
-
-                    /usr/local/bin/docker push \
-                        harinisundari/week9-registration:v1
+                    docker tag week9-registration:v1 "$DOCKER_IMAGE"
+                    docker push "$DOCKER_IMAGE"
                 '''
             }
         }
@@ -42,8 +47,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                    /usr/local/bin/kubectl apply -f deployment.yaml
-                    /usr/local/bin/kubectl apply -f service.yaml
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                    kubectl get deployments
+                    kubectl get services
                 '''
             }
         }
@@ -53,9 +60,8 @@ pipeline {
         success {
             echo 'Pipeline completed successfully!'
         }
-
         failure {
-            echo 'Pipeline failed. Please check the logs.'
+            echo 'Pipeline failed. Please check Console Output.'
         }
     }
 }
