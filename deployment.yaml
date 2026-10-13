@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: week9-registration-deployment
+  name: week9-registration
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: week9-registration
@@ -14,8 +14,7 @@ spec:
         app: week9-registration
     spec:
       containers:
-  - name: registration-app
-    image: harinisundari/week9-registration:v1
-    imagePullPolicy: Always
-    ports:
-      - containerPort: 5001
+        - name: week9-registration
+          image: harinisundari/week9-registration:v1
+          ports:
+            - containerPort: 5001
